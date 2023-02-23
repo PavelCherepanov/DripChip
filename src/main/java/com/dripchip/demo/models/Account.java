@@ -1,5 +1,6 @@
 package com.dripchip.demo.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -11,6 +12,7 @@ public class Account {
     private String firstName;
     private String lastName;
     private String email;
+    @JsonIgnore
     private String password;
 
     public Account(String firstName, String lastName, String email, String password) {

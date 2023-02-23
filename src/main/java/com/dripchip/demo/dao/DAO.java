@@ -1,5 +1,8 @@
 package com.dripchip.demo.dao;
 
+import com.dripchip.demo.models.Account;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -11,7 +14,10 @@ import java.util.Optional;
 public interface DAO<T> {
     List<T> list();
     void create(T t);
-    Optional<T> get(int id);
-    void update(T t, int id);
-    void delete(int id);
+    Optional<T> get(Long id);
+    void update(T t, Long id);
+    void delete(Long id);
+
+
+    List<Account> search(String email, String firstName, String lastName, Integer from, Integer size);
 }

@@ -1,12 +1,12 @@
 package com.dripchip.demo.controllers;
 
+import com.dripchip.demo.dao.DAO;
 import com.dripchip.demo.models.Account;
 import com.dripchip.demo.models.Animal;
-import com.dripchip.demo.models.AnimalType;
-import com.dripchip.demo.repositories.AnimalRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -18,58 +18,72 @@ import java.util.Optional;
 @RestController
 @RequestMapping(path = "api/v1/animals")
 public class AnimalController {
+    private final DAO<Animal> dao;
     @Autowired
-    private AnimalRepository animalRepository;
+    public AnimalController(DAO<Animal> dao){
+        this.dao = dao;
+    }
+
 
     @GetMapping
     public List<Animal> getAllAnimals(){
-        List<Animal> animals = animalRepository.findAll();
+        List<Animal> animals = dao.list();
         return animals;
     }
 
     @GetMapping(path = "{animalId}")
     public Optional<Animal> getAnimal(@PathVariable("animalId") Long animalId){
-        Optional<Animal> animal = animalRepository.findById(animalId);
+        Optional<Animal> animal = dao.get(animalId);
         return animal;
     }
 
-    @GetMapping(path = "search/{accountId}")
-    public Optional<Animal> searchAnimal(@PathVariable("animalId") Long accountId){
-        Optional<Animal> animal = animalRepository.findById(accountId);
-        if (!animalRepository.existsById(accountId)){
-            throw new IllegalStateException("animal with id "+ accountId + " does not exists");
-        }
-        animalRepository.deleteById(accountId);
-        return animal;
+    @GetMapping(path = "/search")
+    public List<Account> searchAnimal(@RequestParam(value = "firstName", required = false, defaultValue = "null") String firstName,
+                                       @RequestParam(value = "lastName", required = false, defaultValue = "null") String lastName,
+                                       @RequestParam(value = "email", required = false, defaultValue = "null") String email,
+                                       @RequestParam(value = "from", required = false, defaultValue = "0") Integer from,
+                                       @RequestParam(value = "size", required = false, defaultValue = "10") Integer size){
+        List<Animal> animals = dao.search(email.toLowerCase(), firstName.toLowerCase(), lastName.toLowerCase(), from, size);
+//        if (!accountRepository.existsById(accountId)){
+//            throw new IllegalStateException("account with id "+ accountId + " does not exists");
+//        }
+//        accountRepository.deleteById(accountId);
+
+
+
+        return animals;
     }
-    @PostMapping(path = "/registration")
+    @PostMapping(path = "/addAnimal")
     public Animal addNewAnimal(@RequestBody Animal animal){
-
-        animalRepository.save(animal);
+        dao.create(animal);
         return animal;
     }
     @DeleteMapping(path = "{animalId}")
-    public Optional<Animal> deleteAccount(@PathVariable("accountId") Long animalId){
-        Optional<Animal> animal = animalRepository.findById(animalId);
-        if (!animalRepository.existsById(animalId)){
-            throw new IllegalStateException("account with id "+ animalId + " does not exists");
+    public Optional<Animal> deleteAccount(@PathVariable("animalId") Long animalId){
+        Optional<Animal> animal = dao.get(animalId);
+        if (animal.isEmpty()){
+            throw new IllegalStateException("animal with id "+ animalId + " does not exists");
         }
 
-        animalRepository.deleteById(animalId);
+        dao.delete(animalId);
         return animal;
     }
 
-//    @PutMapping(path = "{animalId}")
-//    public void updateAccount(@PathVariable("animalId") Long animalId,
-//                              @RequestParam(required = false) String firstName,
-//                              @RequestParam(required = false) String lastName,
-//                              @RequestParam(required = false) String email,
-//                              @RequestParam(required = false) String password){
-//        Animal animal = animalRepository.findById(animalId).orElseThrow(() -> new IllegalStateException("account with id" + animalId + "does not exists"));
-//        animal.setFirstName(firstName);
-//        animal.setLastName(lastName);
-//        animal.setEmail(email);
-//        animal.setPassword(password);
-//
-//    }
+    @PutMapping(path = "{animalId}")
+    public Animal updateAnimal(@PathVariable("animalId") Long animalId,
+                               @RequestParam(required = false) List<Long> animalTypes,
+                               @RequestParam(required = false) Long weight,
+                               @RequestParam(required = false) String length,
+                               @RequestParam(required = false) String height,
+                               @RequestParam(required = false) String gender,
+                               @RequestParam(required = false) String lifeStatus,
+                               @RequestParam(required = false) LocalDateTime chippingDateTime,
+                               @RequestParam(required = false) Integer chipperId,
+                               @RequestParam(required = false) Long chippingLocationId,
+                               @RequestParam(required = false) List<Long> visitedLocations,
+                               @RequestParam(required = false) LocalDateTime deathDateTime){
+        Animal animal = dao.get(animalId).orElseThrow(() -> new IllegalStateException("animal with id " + animalId + "does not exists"));
+        dao.update(animal, animalId);
+        return animal;
+    }
 }
