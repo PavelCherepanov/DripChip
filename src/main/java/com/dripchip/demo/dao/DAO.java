@@ -17,7 +17,5 @@ public interface DAO<T> {
     Optional<T> get(Long id);
     void update(T t, Long id);
     void delete(Long id);
-
-
-    List<Account> search(String email, String firstName, String lastName, Integer from, Integer size);
+    List<T> search(String email, String firstName, String lastName, Integer from, Integer size);
 }

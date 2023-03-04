@@ -12,7 +12,6 @@ public class Account {
     private String firstName;
     private String lastName;
     private String email;
-    @JsonIgnore
     private String password;
 
     public Account(String firstName, String lastName, String email, String password) {
@@ -64,4 +63,5 @@ public class Account {
     public void setPassword(String password) {
         this.password = password;
     }
+
 }

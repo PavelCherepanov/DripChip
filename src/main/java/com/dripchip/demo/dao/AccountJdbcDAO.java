@@ -1,7 +1,6 @@
 package com.dripchip.demo.dao;
 
 import com.dripchip.demo.models.Account;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,7 +48,7 @@ public class AccountJdbcDAO implements DAO<Account>{
 
     @Override
     public List<Account> list() {
-        String sql = "SELECT  id, email, first_name, last_name, password FROM accounts";
+        String sql = "SELECT id, email, first_name, last_name, password FROM accounts";
         return jdbcTemplate.query(sql, rowMapper);
     }
 
@@ -61,7 +60,7 @@ public class AccountJdbcDAO implements DAO<Account>{
 
     @Override
     public Optional<Account> get(Long id) {
-        String sql = "SELECT  id, email, first_name, last_name, password FROM accounts WHERE id = ?";
+        String sql = "SELECT id, email, first_name, last_name, password FROM accounts WHERE id = ?";
         Account account = null;
         try{
             account = (Account) jdbcTemplate.queryForObject(sql, new Object[]{id}, rowMapper);
@@ -84,7 +83,11 @@ public class AccountJdbcDAO implements DAO<Account>{
         jdbcTemplate.update(sql, id);
     }
 
-
+    public Account getAccountByEmail(String email){
+        String sql = "SELECT id, email, first_name, last_name, password FROM accounts WHERE email=?";
+        Account account = (Account) jdbcTemplate.query(sql, new Object[]{email}, rowMapper);
+        return account;
+    }
 
     @Override
     public List<Account> search(String email, String firstName, String lastName, Integer from, Integer size) {
